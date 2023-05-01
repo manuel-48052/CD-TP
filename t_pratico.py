@@ -18,6 +18,7 @@ u e r são passados como parâmetro.
     for i in range(N):
         print(u * (r ** i))
 
+
 def mdc_euclides(a, b):
     """ Função que determina o máximo divisor comum entre dois números inteiros a e b, através do algoritmo de Euclides"""
     if b == 0:
@@ -25,6 +26,7 @@ def mdc_euclides(a, b):
     else:
         return mdc_euclides(b, a % b)
     
+
 def most_least_frequent_symbols(file_path):
     """Função que identifica os símbolos mais frequente e menos frequente de um ficheiro passado como parâmetro, indicando
 a frequência de ocorrência desses dois símbolos."""
@@ -41,6 +43,7 @@ a frequência de ocorrência desses dois símbolos."""
         most_frequent = sorted_frequency[-1]
         print(f"Least frequent symbol: '{least_frequent[0]}' with frequency {least_frequent[1]}")
         print(f"Most frequent symbol: '{most_frequent[0]}' with frequency {most_frequent[1]}")
+
 
 def entropy(file_path):
     """função de calculo de entropia simples (não utilizado )"""
@@ -64,7 +67,7 @@ def entropy(file_path):
 
 
 def histograma_entropia(arquivo):
-  """Função que apresenta o histograma de um ficheiro, o valor da informação própria de cada símbolo e a entropia do
+    """Função que apresenta o histograma de um ficheiro, o valor da informação própria de cada símbolo e a entropia do
 ficheiro"""
     if arquivo.endswith('.txt'):
         with open(arquivo, 'r') as f:
@@ -104,6 +107,9 @@ ficheiro"""
     plt.title(arquivo)
     print(f"\nEntropia: {entropia:.4f}")
     plt.show()
+  
+
+
 
 #-------3-----------
 def generate_sequence(N, probabilities):
@@ -157,6 +163,7 @@ if __name__ == "__main__":
         print("3b")
         print("3c")
         print("4a")
+        print("4b")
         # Recebe a entrada do usuário
         opcao = input("Digite o número da opção desejada: ")
 
@@ -168,13 +175,20 @@ if __name__ == "__main__":
         elif opcao == "1a3":
             most_least_frequent_symbols("fox.txt")
         elif opcao == "2a":
-           histograma_entropia("testfiles")  
+            pasta = "testfiles"
+            arquivos = os.listdir(pasta)
+            for arquivo in arquivos:
+                histograma_entropia(pasta+"/"+arquivo)
         elif opcao == "2b":
-           """(b) Considere os ficheiros ListaPalavrasEN.txt e ListaPalavrasPT.txt, os quais contêm listagens de palavras em
+            """(b) Considere os ficheiros ListaPalavrasEN.txt e ListaPalavrasPT.txt, os quais contêm listagens de palavras em
 Língua Inglesa e Língua Portuguesa. Para cada Língua:
 (i) Apresente uma estimativa da percentagem de ocorrência de cada símbolo (carater).
 (ii) Apresente o valor da entropia de ambos os ficheiros."""
-           histograma_entropia("testfiles2")
+            pasta = "testfiles2"
+            arquivos = os.listdir(pasta)
+            for arquivo in arquivos:
+                histograma_entropia(pasta+"/"+arquivo)
+
         elif opcao == "3b":
             probabilities = [0.25, 0.25, 0.25, 0.25]
             save_sequence('sequence.txt', 100, probabilities)
@@ -192,6 +206,30 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             # Decifra o texto cifrado
             decryptedText = makeVernamCypher(cipherText, theKey)
             print('Texto decifrado:', decryptedText)
+        elif opcao == "4b":            
+            with open("testfiles/alice29.txt", 'r') as file:
+                
+                alice = file.read()
+            length = len(alice)      
+            theKey = "A"*length
+            #chave constante
+            cipherText = makeVernamCypher(alice, theKey)
+            with open("alice_cipherd.txt", 'w') as f:
+                for symbol in cipherText:
+                    f.write(str(symbol))
+
+            histograma_entropia("alice_cipherd.txt")
+
+            #chave aleatoria
+            the_key_random = generate_password(length)
+            cipher_text_random = makeVernamCypher(alice, the_key_random)
+            with open("alice_cipherd_random.txt", 'w') as f:
+                for symbol in cipher_text_random:
+                    f.write(str(symbol))
+
+            histograma_entropia("alice_cipherd_random.txt")
+            
+            
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
