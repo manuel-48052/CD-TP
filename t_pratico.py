@@ -129,6 +129,21 @@ def save_sequence(filename, N, probabilities):
             f.write(str(symbol) + '\n')
 
 
+def generate_password(N):
+    """generate random word with N number ofcharacters wit leters digits and puntuation"""
+    symbols = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(symbols) for _ in range(N))
+    return password
+
+
+def makeVernamCypher(plainText, theKey):
+    cipherText = ''
+    for i in range(len(plainText)):
+        # Realiza o XOR bit a bit dos caracteres do texto claro e da chave
+        cipherChar = chr(ord(plainText[i]) ^ ord(theKey[i]))
+        cipherText += cipherChar
+    return cipherText
+
 
 if __name__ == "__main__":
     while True:
@@ -139,7 +154,9 @@ if __name__ == "__main__":
         print("1a3: - 5c")
         print("2a:  1a4 e 2a")
         print("2b")
-        print("3a")
+        print("3b")
+        print("3c")
+        print("4a")
         # Recebe a entrada do usuário
         opcao = input("Digite o número da opção desejada: ")
 
@@ -158,10 +175,23 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 (i) Apresente uma estimativa da percentagem de ocorrência de cada símbolo (carater).
 (ii) Apresente o valor da entropia de ambos os ficheiros."""
            histograma_entropia("testfiles2")
-        elif opcao == "3a":
-            
-        
-        
+        elif opcao == "3b":
+            probabilities = [0.25, 0.25, 0.25, 0.25]
+            save_sequence('sequence.txt', 100, probabilities)
+
+        elif opcao == "3c":
+            print(generate_password(12))
+        elif opcao == "4a":
+            plainText = 'abcabcd'
+            theKey = '3333333'
+
+            # Cifra o texto claro
+            cipherText = makeVernamCypher(plainText, theKey)
+            print('Texto cifrado:', cipherText)
+
+            # Decifra o texto cifrado
+            decryptedText = makeVernamCypher(cipherText, theKey)
+            print('Texto decifrado:', decryptedText)
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
