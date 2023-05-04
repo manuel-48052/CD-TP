@@ -151,6 +151,21 @@ def makeVernamCypher(plainText, theKey):
     return cipherText
 
 
+def bsc(seq, p):
+    output = ""
+    for bit in seq:
+        if random.random() < p:
+            output += str(int(bit) ^ 1)
+        else:
+            output += bit
+    return output
+
+
+def ber(seq1, seq2):
+    num_diff_bits = sum(1 for a, b in zip(seq1, seq2) if a != b)
+    return num_diff_bits / len(seq1)
+
+
 if __name__ == "__main__":
     while True:
         # Exibe um menu de opções para o usuário
@@ -164,6 +179,7 @@ if __name__ == "__main__":
         print("3c")
         print("4a")
         print("4b")
+        print("5a")
         # Recebe a entrada do usuário
         opcao = input("Digite o número da opção desejada: ")
 
@@ -229,7 +245,15 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             histograma_entropia("alice_cipherd_random.txt")
             
-            
+        elif opcao == "5a":
+            with open("testfiles/alice29.txt", "rb") as f:
+                input_data = f.read()
+
+            input_bits = "".join(format(byte, "08b") for byte in input_data)
+            output_bits = bsc(input_bits, 0.1)       
+
+            print(f"BER: {ber(output_bits, input_bits)}")
+
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
