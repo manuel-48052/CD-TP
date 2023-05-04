@@ -152,13 +152,22 @@ def makeVernamCypher(plainText, theKey):
 
 
 def bsc(seq, p):
-    output = ""
-    for bit in seq:
-        if random.random() < p:
-            output += str(int(bit) ^ 1)
-        else:
-            output += bit
-    return output
+    output_s = ""
+    for leter in seq:
+        char_int = ord(leter)       
+        bits = []
+        for i in range(8):
+            # Extract the i-th bit using bitwise operations
+            bit = (char_int >> i) & 1
+            if random.random() < p:
+                bits.append(int(bit) ^ 1)
+            else:
+                bits.append(int(bit))
+        bit_str = ''.join(str(bit) for bit in bits)
+        output_int = int(bit_str, 2)
+        output_s += chr(output_int)
+        
+    return output_s
 
 
 def ber(seq1, seq2):
@@ -248,6 +257,8 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             
         elif opcao == "5a":
 
+
+
             with open("testfiles/alice29.txt", 'r') as file:
                 
                 alice = file.read()
@@ -257,13 +268,19 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             #chave constante
             cipherText = makeVernamCypher(alice, the_key_random)
 
-            input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
-            output_bits = bsc(input_bits, 0.1)      
+            #input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
+            output_bits = bsc(cipherText, 0.1)    
+
+
+            plain_text = makeVernamCypher(output_bits, the_key_random) 
 
             with open("alice_cipherd_random_ber.txt", 'wb') as f:
-                f.write(bytes(output_bits, 'utf-8'))
+                f.write(bytes(plain_text, 'utf-8'))
+
+            
+
                 
-            print(f"BER: {ber(output_bits, input_bits)}")
+            print(f"BER: {ber(plain_text, cipherText)}")
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
