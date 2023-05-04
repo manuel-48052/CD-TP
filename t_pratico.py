@@ -175,6 +175,33 @@ def ber(seq1, seq2):
     return num_diff_bits / len(seq1)
 
 
+# Função de entrelaçamento
+def interleave(msg, rows, cols):
+    msg_len = len(msg)
+    interleaved = np.zeros((rows, cols), dtype=np.uint8)
+    idx = 0
+    for j in range(cols):
+        for i in range(rows):
+            if idx < msg_len:
+                interleaved[i, j] = ord(msg[idx])
+                idx += 1
+    return interleaved
+
+
+# Função de desentrelaçamento
+def deinterleave(interleaved):
+    rows, cols = interleaved.shape
+    msg_len = rows * cols
+    msg = ""
+    idx = 0
+    for j in range(cols):
+        for i in range(rows):
+            if idx < msg_len:
+                msg += chr(interleaved[i, j])
+                idx += 1
+    return msg
+
+
 if __name__ == "__main__":
     while True:
         # Exibe um menu de opções para o usuário
