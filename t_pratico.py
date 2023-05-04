@@ -222,6 +222,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             # Decifra o texto cifrado
             decryptedText = makeVernamCypher(cipherText, theKey)
             print('Texto decifrado:', decryptedText)
+
         elif opcao == "4b":            
             with open("testfiles/alice29.txt", 'r') as file:
                 
@@ -246,14 +247,23 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             histograma_entropia("alice_cipherd_random.txt")
             
         elif opcao == "5a":
-            with open("testfiles/alice29.txt", "rb") as f:
-                input_data = f.read()
 
-            input_bits = "".join(format(byte, "08b") for byte in input_data)
-            output_bits = bsc(input_bits, 0.1)       
+            with open("testfiles/alice29.txt", 'r') as file:
+                
+                alice = file.read()
+            length = len(alice)      
+            the_key_random = generate_password(length)
 
+            #chave constante
+            cipherText = makeVernamCypher(alice, the_key_random)
+
+            input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
+            output_bits = bsc(input_bits, 0.1)      
+
+            with open("alice_cipherd_random_ber.txt", 'wb') as f:
+                f.write(bytes(output_bits, 'utf-8'))
+                
             print(f"BER: {ber(output_bits, input_bits)}")
-
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
