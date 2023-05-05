@@ -178,26 +178,26 @@ def ber(seq1, seq2):
 # Função de entrelaçamento
 def interleave(msg, rows, cols):
     msg_len = len(msg)
-    interleaved = np.zeros((rows, cols), dtype=np.uint8)
+    interleaved = np.zeros((rows, cols), dtype=str)
     idx = 0
     for j in range(cols):
         for i in range(rows):
             if idx < msg_len:
-                interleaved[i, j] = ord(msg[idx])
+                interleaved[i, j] = msg[idx]
                 idx += 1
+    
     return interleaved
 
 
 # Função de desentrelaçamento
-def deinterleave(interleaved):
-    rows, cols = interleaved.shape
+def deinterleave(interleaved,rows,cols):
     msg_len = rows * cols
     msg = ""
     idx = 0
     for j in range(cols):
         for i in range(rows):
             if idx < msg_len:
-                msg += chr(interleaved[i, j])
+                msg += interleaved[i, j]
                 idx += 1
     return msg
 
@@ -240,11 +240,9 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             arquivos = os.listdir(pasta)
             for arquivo in arquivos:
                 histograma_entropia(pasta+"/"+arquivo)
-
         elif opcao == "3b":
             probabilities = [0.25, 0.25, 0.25, 0.25]
             save_sequence('sequence.txt', 100, probabilities)
-
         elif opcao == "3c":
             print(generate_password(12))
         elif opcao == "4a":
@@ -258,7 +256,6 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             # Decifra o texto cifrado
             decryptedText = makeVernamCypher(cipherText, theKey)
             print('Texto decifrado:', decryptedText)
-
         elif opcao == "4b":            
             with open("testfiles/alice29.txt", 'r') as file:
                 
@@ -281,11 +278,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
                     f.write(str(symbol))
 
             histograma_entropia("alice_cipherd_random.txt")
-            
         elif opcao == "5a":
-
-
-
             with open("testfiles/alice29.txt", 'r') as file:
                 
                 alice = file.read()
@@ -303,11 +296,39 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             with open("alice_cipherd_random_ber.txt", 'wb') as f:
                 f.write(bytes(plain_text, 'utf-8'))
-
-            
-
-                
             print(f"BER: {ber(plain_text, cipherText)}")
+        elif opcao == "5b":
+            with open("testfiles/alice29.txt", 'r') as file:                
+                alice = file.read()
+            length = len(alice)      
+
+            rows =math.ceil(length/7)
+            intervaled_text = interleave(alice,rows,7)
+            to_deintel = np.zeros((rows, 7), dtype=str)
+            print(intervaled_text[0][0])
+            
+            for j in range(rows): 
+                len_c = len(intervaled_text[j])
+                the_key_random = generate_password(len_c)    
+                joined = "".join(intervaled_text[j])
+                cipherText = makeVernamCypher(joined, the_key_random)
+                
+                #input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
+                output_bits = bsc(cipherText, 0)
+                if j < 3:
+                    print(cipherText)
+                    print(output_bits)
+                    print("---------")
+                plain_text = makeVernamCypher(cipherText, the_key_random)
+                for i in range(len(plain_text)):
+                    to_deintel[j][i] = plain_text[i]
+                
+
+            de_inter_text = deinterleave(to_deintel,rows,7)
+    
+         #   with open("alice_cipherd_random_ber_intervel.txt", 'wb') as f:
+       #         f.write(bytes(de_inter_text, 'utf-8'))
+        #    print(f"BER: {ber(de_inter_text, cipherText)}")
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
