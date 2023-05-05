@@ -137,13 +137,13 @@ def save_sequence(filename, N, probabilities):
 
 def generate_password(N):
     """generate random word with N number ofcharacters wit leters digits and puntuation"""
-    symbols = string.ascii_letters + string.digits + string.punctuation
+    symbols = string.ascii_letters + string.digits
     password = ''.join(random.choice(symbols) for _ in range(N))
     return password
 
 
 def makeVernamCypher(plainText, theKey):
-    cipherText = ''
+    cipherText = ""
     for i in range(len(plainText)):
         # Realiza o XOR bit a bit dos caracteres do texto claro e da chave
         cipherChar = chr(ord(plainText[i]) ^ ord(theKey[i]))
@@ -154,19 +154,22 @@ def makeVernamCypher(plainText, theKey):
 def bsc(seq, p):
     output_s = ""
     for leter in seq:
-        char_int = ord(leter)       
+        char_int = ord(leter)   
         bits = []
-        for i in range(8):
+        for i in reversed(range(8)):
             # Extract the i-th bit using bitwise operations
             bit = (char_int >> i) & 1
             if random.random() < p:
-                bits.append(int(bit) ^ 1)
+               #bits.append(bit ^ 1)
+               bits.append(bit)
             else:
-                bits.append(int(bit))
+                bits.append(bit)
+                
         bit_str = ''.join(str(bit) for bit in bits)
+        
         output_int = int(bit_str, 2)
         output_s += chr(output_int)
-        
+
     return output_s
 
 
@@ -279,24 +282,25 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             histograma_entropia("alice_cipherd_random.txt")
         elif opcao == "5a":
-            with open("testfiles/alice29.txt", 'r') as file:
-                
+            with open("testfiles/U.txt", 'r') as file:                
                 alice = file.read()
             length = len(alice)      
             the_key_random = generate_password(length)
-
+            
             #chave constante
             cipherText = makeVernamCypher(alice, the_key_random)
-
-            #input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
-            output_bits = bsc(cipherText, 0.1)    
-
+            
+            print(cipherText)
+            output_bits = bsc(cipherText, 1)    
+            print(output_bits)
 
             plain_text = makeVernamCypher(output_bits, the_key_random) 
 
-            with open("alice_cipherd_random_ber.txt", 'wb') as f:
+            with open("U_with_ber.txt", 'wb') as f:
                 f.write(bytes(plain_text, 'utf-8'))
+
             print(f"BER: {ber(plain_text, cipherText)}")
+
         elif opcao == "5b":
             with open("testfiles/alice29.txt", 'r') as file:                
                 alice = file.read()
@@ -304,31 +308,26 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             rows =math.ceil(length/7)
             intervaled_text = interleave(alice,rows,7)
-            to_deintel = np.zeros((rows, 7), dtype=str)
-            print(intervaled_text[0][0])
+            to_deintel = np.zeros((rows, 7), dtype=str)           
             
             for j in range(rows): 
                 len_c = len(intervaled_text[j])
                 the_key_random = generate_password(len_c)    
                 joined = "".join(intervaled_text[j])
-                cipherText = makeVernamCypher(joined, the_key_random)
-                
+                cipherText = makeVernamCypher(joined, the_key_random)                
                 #input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
-                output_bits = bsc(cipherText, 0)
-                if j < 3:
-                    print(cipherText)
-                    print(output_bits)
-                    print("---------")
-                plain_text = makeVernamCypher(cipherText, the_key_random)
+
+                output_bits = bsc(cipherText, 0)  
+                plain_text = makeVernamCypher(output_bits, the_key_random)
                 for i in range(len(plain_text)):
                     to_deintel[j][i] = plain_text[i]
                 
 
             de_inter_text = deinterleave(to_deintel,rows,7)
     
-         #   with open("alice_cipherd_random_ber_intervel.txt", 'wb') as f:
-       #         f.write(bytes(de_inter_text, 'utf-8'))
-        #    print(f"BER: {ber(de_inter_text, cipherText)}")
+            with open("alice_cipherd_random_ber_intervel.txt", 'wb') as f:
+                f.write(bytes(de_inter_text, 'utf-8'))
+            print(f"BER: {ber(de_inter_text, cipherText)}")     
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
