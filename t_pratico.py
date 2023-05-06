@@ -154,23 +154,22 @@ def makeVernamCypher(plainText, theKey):
 def bsc(seq, p):
     output_s = ""
     for leter in seq:
-        char_int = ord(leter)   
+        leter_bin = format(ord(leter), 'b')    
         bits = []
-        for i in reversed(range(8)):
+        for bit in leter_bin:
             # Extract the i-th bit using bitwise operations
-            bit = (char_int >> i) & 1
+           # bit = (leter_bin >> i) & 1
             if random.random() < p:
-               #bits.append(bit ^ 1)
-               bits.append(bit)
+                bits.append(int(bit) ^ 1)
             else:
-                bits.append(bit)
-                
+                bits.append(int(bit))
+
         bit_str = ''.join(str(bit) for bit in bits)
-        
         output_int = int(bit_str, 2)
         output_s += chr(output_int)
 
     return output_s
+
 
 
 def ber(seq1, seq2):
@@ -180,28 +179,27 @@ def ber(seq1, seq2):
 
 # Função de entrelaçamento
 def interleave(msg, rows, cols):
-    msg_len = len(msg)
     interleaved = np.zeros((rows, cols), dtype=str)
     idx = 0
     for j in range(cols):
         for i in range(rows):
-            if idx < msg_len:
-                interleaved[i, j] = msg[idx]
-                idx += 1
+            if idx == len(msg) or ord(msg[idx]) == -1 :
+                break
+            interleaved[i, j] = msg[idx]
+            idx += 1
     
     return interleaved
 
 
 # Função de desentrelaçamento
 def deinterleave(interleaved,rows,cols):
-    msg_len = rows * cols
     msg = ""
-    idx = 0
     for j in range(cols):
         for i in range(rows):
-            if idx < msg_len:
-                msg += interleaved[i, j]
-                idx += 1
+            #if  interleaved[i, j] == -1:
+             #   break
+            msg += interleaved[i, j]   
+
     return msg
 
 
@@ -289,17 +287,13 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             
             #chave constante
             cipherText = makeVernamCypher(alice, the_key_random)
-            
-            print(cipherText)
-            output_bits = bsc(cipherText, 1)    
-            print(output_bits)
-
+            output_bits = bsc(cipherText, 0)
             plain_text = makeVernamCypher(output_bits, the_key_random) 
 
             with open("U_with_ber.txt", 'wb') as f:
-                f.write(bytes(plain_text, 'utf-8'))
+                f.write(bytes(plain_text, 'ASCII'))
 
-            print(f"BER: {ber(plain_text, cipherText)}")
+            print(f"BER: {ber(alice,plain_text)}")
 
         elif opcao == "5b":
             with open("testfiles/alice29.txt", 'r') as file:                
@@ -309,26 +303,25 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             rows =math.ceil(length/7)
             intervaled_text = interleave(alice,rows,7)
             to_deintel = np.zeros((rows, 7), dtype=str)           
-            
-            for j in range(rows): 
-                len_c = len(intervaled_text[j])
+            print(intervaled_text.shape)
+            for i in range(rows): 
+                len_c = len(intervaled_text[i])
                 the_key_random = generate_password(len_c)    
-                joined = "".join(intervaled_text[j])
-                cipherText = makeVernamCypher(joined, the_key_random)                
-                #input_bits = "".join(format(ord(byte), "08b") for byte in cipherText)
-
+                joined = "".join(intervaled_text[i])
+                cipherText = makeVernamCypher(joined, the_key_random)     
                 output_bits = bsc(cipherText, 0)  
                 plain_text = makeVernamCypher(output_bits, the_key_random)
-                for i in range(len(plain_text)):
-                    to_deintel[j][i] = plain_text[i]
+                for j in range(len(plain_text)):
+                    to_deintel[i][j] = plain_text[j]
                 
-
+            print(to_deintel.shape)
             de_inter_text = deinterleave(to_deintel,rows,7)
-    
+            
             with open("alice_cipherd_random_ber_intervel.txt", 'wb') as f:
-                f.write(bytes(de_inter_text, 'utf-8'))
-            print(f"BER: {ber(de_inter_text, cipherText)}")     
+                f.write(bytes(de_inter_text, 'ASCII'))
+            print(f"BER: {ber(de_inter_text, alice)}") 
 
+      
         else:
             print("Opção inválida! Por favor, escolha um número.")
 
