@@ -76,7 +76,7 @@ ficheiro"""
     elif arquivo.endswith('.bmp'):
         with open(arquivo, 'rb') as f:
             dados = f.read()
-        imagem = Image.open(arquivo)
+        # imagem = Image.open(arquivo)
         # Process the BMP image data here
     elif arquivo.endswith('.c') or arquivo.endswith('.java') or arquivo.endswith('.htm'):
         with open(arquivo, 'r') as f:
@@ -90,10 +90,11 @@ ficheiro"""
     total = sum(contagem.values())
 
     # Informação própria
-    #print("\nInformação própria:")
-    for simbolo, frequencia in contagem.items():
-        probabilidade = frequencia / total
-        informacao = -math.log2(probabilidade)
+    own_info = {k: -math.log2(v/total) for k, v in contagem.items()}
+
+    print("Informação própria:")
+    for k, v in own_info.items():
+        print(f"{k}: {v:.4f}")
       
     # Entropia
     entropia = sum(-freq/total * math.log2(freq/total) for freq in contagem.values())
@@ -101,7 +102,7 @@ ficheiro"""
     # Plot do histograma
     contagem = sorted(contagem.items())
     simbolos, frequencias = zip(*contagem)
-    probabilidade = [freq/total for freq in frequencias]
+    # probabilidade = [freq/total for freq in frequencias]
     
     plt.bar(simbolos, frequencias)
     plt.title(arquivo)
