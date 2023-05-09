@@ -188,8 +188,23 @@ def bsc(seq, p):
 
 
 def ber(seq1, seq2):
-    num_diff_bits = sum(1 for a, b in zip(seq1, seq2) if a != b)
-    return num_diff_bits / len(seq1)
+    def tobits(s):
+        result = []
+        for c in s:
+            bits = bin(ord(c))[2:]
+            bits = '00000000'[len(bits):] + bits
+            result.extend([int(b) for b in bits])
+        return result
+    
+    a = tobits(seq1)
+    b = tobits(seq2)
+
+    diff_bits = 0
+
+    for i in range(len(a)):
+        diff_bits += a[i] ^ b[i]
+
+    return diff_bits / len(a)
 
 
 # Função de entrelaçamento
