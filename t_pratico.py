@@ -108,8 +108,22 @@ ficheiro"""
     plt.title(arquivo)
     print(f"\nEntropia: {entropia:.4f}")
     plt.show()
-  
+ 
 
+def generic_symbol_source_memory(n: int, m: dict[str, float]) -> str:
+    probabilities: list[float] = list(m.values())
+    alphabet: list[str] = list(m.keys())
+    alphabet_size: int = len(m)
+    return [alphabet[np.random.choice(alphabet_size, p=probabilities)] for _ in range(n)]
+
+def generic_symbol_source(n: int, m: dict[str, float], filename: str) -> None:
+    """
+    Função que gera ficheiros de N simbolos de acordo com a FMP do alfabeto de M símbolos.
+    """
+    generated_symbols: list[str] = generic_symbol_source_memory(n, m)
+    with open(filename, 'w') as f:
+        for s in generated_symbols:
+            f.write(s)
 
 
 #-------3-----------
@@ -204,6 +218,19 @@ def deinterleave(interleaved,rows,cols):
     return msg
 
 
+def create_strong_password_memory(size: int, symbols: str = None) -> str:
+    possible_symbols: str = symbols if symbols else string.ascii_letters + string.digits + string.punctuation
+    symbol_probability: float = 1.0 / len(possible_symbols)
+    alphabet: dict[str, float] = {s: symbol_probability for s in possible_symbols}
+    return generic_symbol_source_memory(size, alphabet)
+
+
+def create_strong_password(size: int, filename: str, symbols: str = None) -> None:
+    possible_symbols: str = symbols if symbols else string.ascii_letters + string.digits + string.punctuation
+    symbol_probability: float = 1.0 / len(possible_symbols)
+    alphabet: dict[str, float] = {s: symbol_probability for s in possible_symbols}
+    generic_symbol_source(size, alphabet, filename)
+
 if __name__ == "__main__":
     while True:
         # Exibe um menu de opções para o usuário
@@ -243,10 +270,36 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             for arquivo in arquivos:
                 histograma_entropia(pasta+"/"+arquivo)
         elif opcao == "3b":
-            probabilities = [0.25, 0.25, 0.25, 0.25]
-            save_sequence('sequence.txt', 100, probabilities)
+            alphabet: dict[str, float] = {
+                "a": 0.50,
+                "b": 0.25,
+                "c": 0.125,
+                "d": 0.125
+            }
+            generic_symbol_source(100, alphabet, 'seq_100.txt')
+            generic_symbol_source(1000, alphabet, 'seq_1000.txt')
+            generic_symbol_source(10000, alphabet, 'seq_10000.txt')
+            generic_symbol_source(100000, alphabet, 'seq_100000.txt')
+
+            print(f"Entropia para N=100:")
+            entropy('seq_100.txt')
+            print(f"Entropia para N=1000:")
+            entropy('seq_1000.txt')
+            print(f"Entropia para N=10000:")
+            entropy('seq_10000.txt')
+            print(f"Entropia para N=100000:")
+            entropy('seq_100000.txt')
+
+            # probabilities = [0.25, 0.25, 0.25, 0.25]
+            # save_sequence('sequence.txt', 100, probabilities)
         elif opcao == "3c":
-            print(generate_password(12))
+            create_strong_password(8, 'password8.txt')
+            create_strong_password(9, 'password9.txt')
+            create_strong_password(10, 'password10.txt')
+            create_strong_password(11, 'password11.txt')
+            create_strong_password(12, 'password12.txt')
+
+            # print(generate_password(12))
         elif opcao == "4a":
             plainText = 'abcabcd'
             theKey = '3333333'
@@ -273,7 +326,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             histograma_entropia("alice_cipherd.txt")
 
             #chave aleatoria
-            the_key_random = generate_password(length)
+            the_key_random = create_strong_password_memory(length)
             cipher_text_random = makeVernamCypher(alice, the_key_random)
             with open("alice_cipherd_random.txt", 'w') as f:
                 for symbol in cipher_text_random:
