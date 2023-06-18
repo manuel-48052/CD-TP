@@ -498,26 +498,9 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             de_inter_text = deinterleave(to_deintel,rows,cols)           
 
             print(f"BER: {ber(de_inter_text, alice)}")
-
-        elif opcao == "7":
-
-            codeword = 0b1011
-            bad_word = 0b1001001
-   
-
-            ham = hamming_74_encode(codeword) #0b1011  001
-            
-            bad_hamming = (bad_word << 3) | 0b001
-
-            is_flipped, result = check_for_flip(bad_hamming)
-
-            if is_flipped:
-                print(f"Message {bin(bad_word)} was flipped. Recovered message is {bin(result)}")
-            else:
-                print("No bitflip detected")
         
-        elif opcao == "8":
-
+        elif opcao == "7":
+            bad_word = 0b1001
             codeword = 0b1011
             bad_hamming = 0b1001001  
             ham = hamming_74_encode(codeword) #0b1011  001
