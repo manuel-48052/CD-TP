@@ -502,13 +502,12 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
         elif opcao == "7":
 
             codeword = 0b1011
-            bad_word = 0b1001
-           # bad_word = 0b1011
+            bad_word = 0b1001001
+   
 
-            ham = hamming_74_encode(codeword)
-
-            parity = calculate_parity(codeword) 
-            bad_hamming = (bad_word << 3) | parity
+            ham = hamming_74_encode(codeword) #0b1011  001
+            
+            bad_hamming = (bad_word << 3) | 0b001
 
             is_flipped, result = check_for_flip(bad_hamming)
 
@@ -516,7 +515,19 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
                 print(f"Message {bin(bad_word)} was flipped. Recovered message is {bin(result)}")
             else:
                 print("No bitflip detected")
+        
+        elif opcao == "8":
 
+            codeword = 0b1011
+            bad_hamming = 0b1001001  
+            ham = hamming_74_encode(codeword) #0b1011  001
+
+            is_flipped, result = check_for_flip(bad_hamming)
+
+            if is_flipped:
+                print(f"Message {bin(bad_word)} was flipped. Recovered message is {bin(result)}")
+            else:
+                print("No bitflip detected")
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
