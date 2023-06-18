@@ -315,7 +315,55 @@ def hamming_74_encode(word):
     hamming = (word << 3) | parity
     return hamming
 
+def encode(string):
+    out_ints = []
+    for leter in input_s:
+        leter_bin = format(ord(leter), 'b')
+        while len(leter_bin) < 8 :
+            leter_bin = f'0{leter_bin}'    
+            
+        bits = []
+        i = 0
+        for bit in leter_bin:
+            bits.append(int(bit))
+            i += 1
+            if i == 4:
+                bit_str = ''.join(str(bit) for bit in bits)
+                output_int = int(bit_str, 2)
+                ham = hamming_74_encode(output_int)                        
+                out_ints.append(ham)
+                bits = []
+                i = 0 
+    return out_ints
 
+
+def decode_to_string(arr):
+    out_s = ""
+    i = 0
+    for int_c in arr:
+        is_flipped, result = check_for_flip(int_c)        
+        i += 1
+        if i == 2:
+            bit_str = ""
+            inbits = format(check_no_error_a, 'b')
+            while len(inbits) < 4 :
+                inbits = f'0{inbits}'  
+            bit_str += ''.join(str(bit) for bit in inbits)
+
+            inbits = format(result, 'b')
+            while len(inbits) < 4 :
+                inbits = f'0{inbits}'    
+            bit_str += ''.join(str(bit) for bit in inbits)
+
+            output_int = int(bit_str, 2)
+            out_s += chr(output_int)
+            i = 0
+        else:
+            check_no_error_a = result
+    return out_s
+
+
+    
 
 if __name__ == "__main__":
     while True:
@@ -515,30 +563,12 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
         elif opcao == "8":
             input_s = "UUAB"
-            output_s = ""
-            out_ints = []
-            for leter in input_s:
-                leter_bin = format(ord(leter), 'b')
-                while len(leter_bin) < 8 :
-                   leter_bin = f'0{leter_bin}'    
-                   
-                bits = []
-                i = 0
-                for bit in leter_bin:
-                    bits.append(int(bit))
-                    i += 1
-                    if i == 4:
-                        bit_str = ''.join(str(bit) for bit in bits)
-                        output_int = int(bit_str, 2)
-                        ham = hamming_74_encode(output_int)
-                        bits = []
-                        out_ints.append(ham)
-                        output_s += chr(ham)
-                        i = 0 
-             
-          
+            encoded_bits = encode(input_s)  
+            print(encoded_bits)
 
-            print(out_ints)
+            rr = decode_to_string(encoded_bits)
+            print(rr)
+
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
