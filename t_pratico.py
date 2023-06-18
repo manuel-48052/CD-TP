@@ -503,6 +503,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             bad_word = 0b1001
             codeword = 0b1011
             bad_hamming = 0b1001001  
+
             ham = hamming_74_encode(codeword) #0b1011  001
 
             is_flipped, result = check_for_flip(bad_hamming)
@@ -511,6 +512,33 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
                 print(f"Message {bin(bad_word)} was flipped. Recovered message is {bin(result)}")
             else:
                 print("No bitflip detected")
+
+        elif opcao == "8":
+            input_s = "UUAB"
+            output_s = ""
+            out_ints = []
+            for leter in input_s:
+                leter_bin = format(ord(leter), 'b')
+                while len(leter_bin) < 8 :
+                   leter_bin = f'0{leter_bin}'    
+                   
+                bits = []
+                i = 0
+                for bit in leter_bin:
+                    bits.append(int(bit))
+                    i += 1
+                    if i == 4:
+                        bit_str = ''.join(str(bit) for bit in bits)
+                        output_int = int(bit_str, 2)
+                        ham = hamming_74_encode(output_int)
+                        bits = []
+                        out_ints.append(ham)
+                        output_s += chr(ham)
+                        i = 0 
+             
+          
+
+            print(out_ints)
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
