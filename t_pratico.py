@@ -223,6 +223,7 @@ def interleave(msg, rows, cols,length):
     return interleaved
 
 
+
 # Função de desentrelaçamento
 def deinterleave(interleaved,rows,cols):
     msg = ""
@@ -248,6 +249,74 @@ def create_strong_password(size: int, filename: str, symbols: str = None) -> Non
     alphabet: dict[str, float] = {s: symbol_probability for s in possible_symbols}
     generic_symbol_source(size, alphabet, filename)
 
+
+def count_ones(num):
+    result = 0
+    while num > 0:
+        if num & 1 == 1:
+            result += 1
+        num >>= 1
+    return result
+
+
+def calculate_parity(word):
+    d1 = count_ones(word & (1 << 3))
+    d2 = count_ones(word & (1 << 2))
+    d3 = count_ones(word & (1 << 1))
+    d4 = count_ones(word & (1 << 0))
+
+    p1 = d1 ^ d2 ^ d3
+    p2 = d2 ^ d3 ^ d4
+    p3 = d1 ^ d3 ^ d4
+
+    return (p1 << 2) | (p2 << 1) | p3
+
+
+def check_for_flip(word):
+    p1 = word & (1 << 2)
+    p2 = word & (1 << 1)
+    p3 = word & (1 << 0)
+    parity = p1 | p2 | p3
+
+    codeword = (word & 0b1111000) >> 3
+
+    word_parity = calculate_parity(codeword)
+    word_p1 = word_parity & (1 << 2)
+    word_p2 = word_parity & (1 << 1)
+    word_p3 = word_parity & (1 << 0)
+
+    if word_parity != parity:
+        p1_valid = True if word_p1 == p1 else False
+        p2_valid = True if word_p2 == p2 else False
+        p3_valid = True if word_p3 == p3 else False
+
+        flipped_position = 0
+        if p1_valid is False and p2_valid and p3_valid is False:
+            print("Error in d1")
+            flipped_position = 3
+        elif p1_valid is False and p2_valid is False and p3_valid is False:
+            print("Error in d3")
+            flipped_position = 1
+        elif p1_valid and p2_valid is False and p3_valid is False:
+            print("Error in d4")
+            flipped_position = 0
+        else:
+            print("Error in d2")
+            flipped_position = 2
+
+        recovered = codeword ^ (1 << flipped_position)
+        return (True, recovered)
+
+    return (False, codeword)
+
+
+def hamming_74_encode(word):
+    parity = calculate_parity(word)            
+    hamming = (word << 3) | parity
+    return hamming
+
+
+
 if __name__ == "__main__":
     while True:
         # Exibe um menu de opções para o usuário
@@ -264,7 +333,7 @@ if __name__ == "__main__":
         print("5a")
         # Recebe a entrada do usuário
         opcao = input("Digite o número da opção desejada: ")
-
+        
         # Executa a opção escolhida pelo usuário
         if opcao == "1a1":           
             geometric_progression(2,5,16)
@@ -329,7 +398,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             decryptedText = makeVernamCypher(cipherText, theKey)
             print('Texto decifrado:', decryptedText)
         elif opcao == "4b":            
-            with open("testfiles/alice29.txt", 'r') as file:
+            with open("testfiles/alice29.txt", 'r',encoding ="utf-8") as file:
                 
                 alice = file.read()
             length = len(alice)      
@@ -351,7 +420,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             histograma_entropia("alice_cipherd_random.txt")
         elif opcao == "5a":
-            with open("testfiles/alice29.txt", 'r') as file:                
+            with open("testfiles/a.txt", 'r') as file:                
                 alice = file.read()
             length = len(alice)      
             the_key_random = generate_password(length)
@@ -361,20 +430,20 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             output_bits = bsc(cipherText, 0.001)
             plain_text = makeVernamCypher(output_bits, the_key_random) 
 
-            with open("alice29_with_ber.txt", 'wb') as f:
-                f.write(bytes(plain_text, 'ASCII'))
+          #  with open("u_with_ber.txt", 'wb') as f:
+          #      f.write(bytes(plain_text, 'ASCII'))
 
             print(f"BER: {ber(alice,plain_text)}")
 
         elif opcao == "5b":
-            with open("testfiles/alice29.txt", 'r') as file:                
+            with open("testfiles/alice29.txt", 'r',encoding ="utf-8") as file:                
                 alice = file.read()
             length = len(alice)      
 
             cols = 7
             rows =math.ceil(length/cols)
             
-            intervaled_text = interleave(alice,rows,cols)
+            intervaled_text = interleave(alice,rows,cols,length)
 
             to_deintel = np.zeros((rows, cols), dtype=str)           
 
@@ -399,7 +468,7 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             print(f"BER: {ber(de_inter_text, alice)}") 
 
         elif opcao == "6":
-            with open("testfiles/U.txt", 'r') as file:                
+            with open("testfiles/a.txt",'r', encoding ="utf-8") as file:                
                 alice = file.read()
             length = len(alice)      
 
@@ -417,20 +486,38 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
                 the_key_random = generate_password(len_c)    
                 joined = "".join(intervaled_text[i])
 
-                cipherText = makeVernamCypher(joined, the_key_random)     
-                output_bits = bsc(cipherText, 0.1)  
+                cipherText = makeVernamCypher(joined, the_key_random)    
+
+                output_bits = bsc(cipherText, 0.001)  
+
                 plain_text = makeVernamCypher(output_bits, the_key_random)
 
                 for j in range(len(plain_text)):
-                    to_deintel[i][j] = plain_text[j]
-                
+                    to_deintel[i][j] = plain_text[j]                
            
-            de_inter_text = deinterleave(to_deintel,rows,cols)
-            
-            with open("alice_cipherd_random_ber_intervel.txt", 'wb') as f:
-                f.write(bytes(de_inter_text, 'ASCII'))
-            print(f"BER: {ber(de_inter_text, alice)}") 
-      
+            de_inter_text = deinterleave(to_deintel,rows,cols)           
+
+            print(f"BER: {ber(de_inter_text, alice)}")
+
+        elif opcao == "7":
+
+            codeword = 0b1011
+            bad_word = 0b1001
+           # bad_word = 0b1011
+
+            ham = hamming_74_encode(codeword)
+
+            parity = calculate_parity(codeword) 
+            bad_hamming = (bad_word << 3) | parity
+
+            is_flipped, result = check_for_flip(bad_hamming)
+
+            if is_flipped:
+                print(f"Message {bin(bad_word)} was flipped. Recovered message is {bin(result)}")
+            else:
+                print("No bitflip detected")
+
+
         else:
             print("Opção inválida! Por favor, escolha um número.")
 
