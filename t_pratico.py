@@ -220,7 +220,8 @@ def ber(seq1, seq2):
 
     for i in range(len(a)):
         diff_bits += a[i] ^ b[i]
-
+    print("diferent bits")
+    print(diff_bits)
     return diff_bits / len(a)
 
 
@@ -309,16 +310,16 @@ def check_for_flip(word):
 
         flipped_position = 0
         if p1_valid is False and p2_valid and p3_valid is False:
-            print("Error in d1")
+            #print("Error in d1")
             flipped_position = 3
         elif p1_valid is False and p2_valid is False and p3_valid is False:
-            print("Error in d3")
+            #print("Error in d3")
             flipped_position = 1
         elif p1_valid and p2_valid is False and p3_valid is False:
-            print("Error in d4")
+            #print("Error in d4")
             flipped_position = 0
         else:
-            print("Error in d2")
+           # print("Error in d2")
             flipped_position = 2
 
         recovered = codeword ^ (1 << flipped_position)
@@ -589,39 +590,43 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
             print(rr)
         
         elif opcao == "9":            
-            with open("testfiles/a.txt",'r', encoding ="utf-8") as file:                
+            ber_arr = [0.1,0.01,0.001,0.0001,0]
+         
+            with open("fox.txt",'r', encoding ="utf-8") as file:                
                 alice = file.read()
+            for ii in ber_arr:
+                encodeded_text = encode(alice)  
+                output_bits = bsc_ints(encodeded_text, ii)
+                output_bits = decode_to_string(output_bits)
+                print(f"BER: {ber(output_bits, alice)}  with {ii}")
+
+        elif opcao == "10":    
+            ber_arr = [0.1,0.01,0.001,0.0001,0]        
+            with open("testfiles/alice29.txt",'r', encoding ="utf-8") as file:                
+                alice = file.read()
+
+            
             length = len(alice)      
 
             cols = 3
             rows =math.ceil(length/cols)
+            for ii in ber_arr: 
+                intervaled_text = interleave(alice,rows,cols,length)
+                
+
+                to_deintel = np.zeros((rows, cols), dtype=str)           
+                
+                for i in range(rows):                   
+                    joined = "".join(intervaled_text[i])
+                    encodeded_text = encode(joined)  
+                    output_bits = bsc_ints(encodeded_text, ii)
+                    output_bits = decode_to_string(output_bits)
+
+                    for j in range(len(output_bits)):
+                        to_deintel[i][j] = output_bits[j]                
             
-            intervaled_text = interleave(alice,rows,cols,length)
-            
-
-            to_deintel = np.zeros((rows, cols), dtype=str)           
-
-            for i in range(rows): 
-                len_c = len(intervaled_text[i])
-
-                the_key_random = generate_password(len_c)    
-                joined = "".join(intervaled_text[i])
-
-                cipherText = makeVernamCypher(joined, the_key_random)    
-                encodeded_text = encode(cipherText)  
-
-                output_bits = bsc_ints(encodeded_text, 0.1)  
-
-                output_bits = decode_to_string(output_bits)
-                plain_text = makeVernamCypher(output_bits, the_key_random)
-
-                for j in range(len(plain_text)):
-                    to_deintel[i][j] = plain_text[j]                
-           
-            de_inter_text = deinterleave(to_deintel,rows,cols)           
-
-            print(f"BER: {ber(de_inter_text, alice)}")
-
+                de_inter_text = deinterleave(to_deintel,rows,cols)           
+                print(f"BER: {ber(de_inter_text, alice)}  with {ii}")
         else:
             print("Opção inválida! Por favor, escolha um número.")
 
