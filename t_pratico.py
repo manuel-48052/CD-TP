@@ -185,7 +185,24 @@ def bsc(seq, p):
 
     return output_s
 
+def bsc_ints(seq, p):
+    output_s = ""
+    for leter in seq:
+        leter_bin = format(leter, 'b')    
+        bits = []
+        for bit in leter_bin:
+            # Extract the i-th bit using bitwise operations
+           # bit = (leter_bin >> i) & 1
+            if random.random() < p:
+                bits.append(int(bit) ^ 1)
+            else:
+                bits.append(int(bit))
 
+        bit_str = ''.join(str(bit) for bit in bits)
+        output_int = int(bit_str, 2)
+        output_s += chr(output_int)
+
+    return output_s
 
 def ber(seq1, seq2):
     def tobits(s):
@@ -317,7 +334,7 @@ def hamming_74_encode(word):
 
 def encode(string):
     out_ints = []
-    for leter in input_s:
+    for leter in string:
         leter_bin = format(ord(leter), 'b')
         while len(leter_bin) < 8 :
             leter_bin = f'0{leter_bin}'    
@@ -341,6 +358,8 @@ def decode_to_string(arr):
     out_s = ""
     i = 0
     for int_c in arr:
+        if type(int_c) != int:
+            int_c = ord(int_c)
         is_flipped, result = check_for_flip(int_c)        
         i += 1
         if i == 2:
@@ -568,7 +587,40 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
             rr = decode_to_string(encoded_bits)
             print(rr)
+        
+        elif opcao == "9":            
+            with open("testfiles/a.txt",'r', encoding ="utf-8") as file:                
+                alice = file.read()
+            length = len(alice)      
 
+            cols = 3
+            rows =math.ceil(length/cols)
+            
+            intervaled_text = interleave(alice,rows,cols,length)
+            
+
+            to_deintel = np.zeros((rows, cols), dtype=str)           
+
+            for i in range(rows): 
+                len_c = len(intervaled_text[i])
+
+                the_key_random = generate_password(len_c)    
+                joined = "".join(intervaled_text[i])
+
+                cipherText = makeVernamCypher(joined, the_key_random)    
+                encodeded_text = encode(cipherText)  
+
+                output_bits = bsc_ints(encodeded_text, 0.1)  
+
+                output_bits = decode_to_string(output_bits)
+                plain_text = makeVernamCypher(output_bits, the_key_random)
+
+                for j in range(len(plain_text)):
+                    to_deintel[i][j] = plain_text[j]                
+           
+            de_inter_text = deinterleave(to_deintel,rows,cols)           
+
+            print(f"BER: {ber(de_inter_text, alice)}")
 
         else:
             print("Opção inválida! Por favor, escolha um número.")
