@@ -602,31 +602,33 @@ Língua Inglesa e Língua Portuguesa. Para cada Língua:
 
         elif opcao == "10":    
             ber_arr = [0.1,0.01,0.001,0.0001,0]        
-            with open("testfiles/alice29.txt",'r', encoding ="utf-8") as file:                
-                alice = file.read()
-
-            
+            with open("fox.txt",'r', encoding ="utf-8") as file:                
+                alice = file.read()            
             length = len(alice)      
-
-            cols = 3
+            cols = 300
             rows =math.ceil(length/cols)
-            for ii in ber_arr: 
-                intervaled_text = interleave(alice,rows,cols,length)
-                
+            
 
-                to_deintel = np.zeros((rows, cols), dtype=str)           
-                
+            for ii in ber_arr: 
+                point_A = ""
+                point_B = ""
+                intervaled_text = interleave(alice,rows,cols,length)   
+                to_deintel = np.zeros((rows, cols), dtype=str)                           
                 for i in range(rows):                   
                     joined = "".join(intervaled_text[i])
+                    point_A += joined
                     encodeded_text = encode(joined)  
                     output_bits = bsc_ints(encodeded_text, ii)
                     output_bits = decode_to_string(output_bits)
-
+                    point_B += output_bits
+                    
                     for j in range(len(output_bits)):
                         to_deintel[i][j] = output_bits[j]                
             
-                de_inter_text = deinterleave(to_deintel,rows,cols)           
-                print(f"BER: {ber(de_inter_text, alice)}  with {ii}")
+                de_inter_text = deinterleave(to_deintel,rows,cols)   
+
+                print(f"BER: {ber(point_A, point_B)}  with {ii}  in interleav ")
+                print(f"BER: {ber(de_inter_text, alice)}  with {ii}  out interleav ")
         else:
             print("Opção inválida! Por favor, escolha um número.")
 
